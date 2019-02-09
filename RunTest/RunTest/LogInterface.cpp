@@ -2,11 +2,12 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#if LOG_LEVEL > 0
+
 static void DummyLog(int i_level, const char* i_str)
 {
 }
-LogCallback* g_logCallback = &DummyLog;
-
+static LogCallback* g_logCallback = &DummyLog;
 
 void SetLogCallback(LogCallback* i_logCallback)
 {
@@ -32,13 +33,16 @@ void LogMsgFmt(int i_level, const char* i_str, ...)
 
   //Write the data to a buffer
   char buf[1024];
-  vsnprintf(buf, sizeof(buf), i_str, marker);
+  buf[0] = 0;
+  vsnprintf(buf, sizeof(buf) - 1, i_str, marker);
   
-  // Force a null terminator to be safe
+  // Force a null terminator to be safe from bad implementations
   buf[sizeof(buf) - 1] = 0;
 
   g_logCallback(i_level, buf);
 
   va_end(marker);
 }
+
+#endif // LOG_LEVEL > 0
 

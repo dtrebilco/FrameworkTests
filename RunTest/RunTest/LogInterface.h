@@ -1,12 +1,18 @@
 #pragma once
 
+/// \brief This file contains the definitions of logging and debugging interfaces.
+///        The actual implementations of the logging must be provided to the interface as a callback function.
+
 // What level of logging to use 0 = none, 3 = full
 #define LOG_LEVEL 3
 #define PROFILE_ENABLE 1
 
 #if LOG_LEVEL > 0
 
+  /// \brief The callback function used in logging. Must be multi-thread safe
   typedef void (LogCallback)(int i_level, const char* i_str);
+  
+  /// \brief Set the callback function used in logging
   void SetLogCallback(LogCallback* i_logCallback);
   void LogMsg(int i_level, const char* i_str);
   
