@@ -21,8 +21,16 @@ int32_t s_mouseDownY = 0;
 
 bool dummy = false;
 
+
+void LogCallback(int i, const char*str)
+{
+  OutputDebugStringA(str);
+  OutputDebugStringA("\n");
+}
+
 App::App()
 {
+  LOGSETUP(&LogCallback);
 }
 
 bool App::init()
@@ -330,6 +338,14 @@ void App::drawFrame()
   renderer->setDepthState(noDepthWrite);
   renderer->apply();
 
+  LOGERR("Error Test!");
+  LOGERR_FMT("Error Test! %s %d %d", "data", 156);
+  
+  LOGWARN("Warn Test!");
+  LOGWARN_FMT("Warn Test! %s %d", "data", 156);
+
+  LOGINFO("Info Test!");
+  LOGINFO_FMT("Info Test! %s %d", "data", 156);
   {
     char buffer[100];
     float xPos = (float)width - 250.0f;

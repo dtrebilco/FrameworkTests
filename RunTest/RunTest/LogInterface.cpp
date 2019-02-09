@@ -4,6 +4,9 @@
 
 #if LOG_LEVEL > 0
 
+namespace logger_interface
+{
+
 static void DummyLog(int i_level, const char* i_str)
 {
 }
@@ -34,15 +37,16 @@ void LogMsgFmt(int i_level, const char* i_str, ...)
   //Write the data to a buffer
   char buf[1024];
   buf[0] = 0;
-  vsnprintf(buf, sizeof(buf) - 1, i_str, marker);
+  vsnprintf(&buf[0], sizeof(buf) - 1, i_str, marker);
   
   // Force a null terminator to be safe from bad implementations
   buf[sizeof(buf) - 1] = 0;
 
-  g_logCallback(i_level, buf);
+  g_logCallback(i_level, &buf[0]);
 
   va_end(marker);
 }
 
+} // namespace logger
 #endif // LOG_LEVEL > 0
 
