@@ -436,6 +436,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="LogInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Framework3\BaseApp.h" />
@@ -461,6 +462,7 @@
     <ClInclude Include="..\Framework3\Util\String.h" />
     <ClInclude Include="..\Framework3\Util\Tokenizer.h" />
     <ClInclude Include="App.h" />
+    <ClInclude Include="LogInterface.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Framework3\Windows\Resources.rc">

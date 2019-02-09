@@ -7,6 +7,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "LogInterface.h"
+
 extern long g_allocRequestCount;
 extern long g_allocFreeCount;
 

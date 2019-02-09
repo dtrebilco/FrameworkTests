@@ -97,6 +97,7 @@
     <ClCompile Include="..\Framework3\OpenGL\wgl_Extensions.c">
       <Filter>Framework3\OpenGL\Extensions</Filter>
     </ClCompile>
+    <ClCompile Include="LogInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Framework3\BaseApp.h">
@@ -166,6 +167,7 @@
     <ClInclude Include="..\Framework3\OpenGL\wgl_Extensions.h">
       <Filter>Framework3\OpenGL\Extensions</Filter>
     </ClInclude>
+    <ClInclude Include="LogInterface.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Framework3\Windows\Resources.rc">
