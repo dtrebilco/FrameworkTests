@@ -302,11 +302,6 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Examples\GameContext.cpp" />
-    <ClCompile Include="..\..\Examples\GameGroup.cpp" />
-    <ClCompile Include="..\..\Examples\TransformUtils.cpp" />
-    <ClCompile Include="..\..\Examples\Utils.cpp" />
-    <ClCompile Include="..\..\Lib\ECS.cpp" />
     <ClCompile Include="..\Framework3\BaseApp.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -443,15 +438,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Examples\Components\Bounds.h" />
-    <ClInclude Include="..\..\Examples\Components\Transforms.h" />
-    <ClInclude Include="..\..\Examples\GameContext.h" />
-    <ClInclude Include="..\..\Examples\GameGroup.h" />
-    <ClInclude Include="..\..\Examples\TransformUtils.h" />
-    <ClInclude Include="..\..\Examples\Utils.h" />
-    <ClInclude Include="..\..\Lib\Common.h" />
-    <ClInclude Include="..\..\Lib\ECS.h" />
-    <ClInclude Include="..\..\Lib\ECSIter.h" />
     <ClInclude Include="..\Framework3\BaseApp.h" />
     <ClInclude Include="..\Framework3\Config.h" />
     <ClInclude Include="..\Framework3\CPU.h" />
