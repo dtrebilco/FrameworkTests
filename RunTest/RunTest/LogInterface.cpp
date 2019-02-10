@@ -47,6 +47,57 @@ void LogMsgFmt(int i_level, const char* i_str, ...)
   va_end(marker);
 }
 
-} // namespace logger
+} // namespace logger_interface
 #endif // LOG_LEVEL > 0
+
+
+#if PROFILE_ENABLE > 0
+namespace profile_interface
+{
+
+static void DummyBegin(const char* i_str)
+{
+}
+
+static void DummyEnd()
+{
+}
+
+static ProfileBeginCallback* g_profileBeginCallback = &DummyBegin;
+static ProfileEndCallback* g_profileEndCallback = &DummyEnd;
+
+
+void SetProfileCallback(ProfileBeginCallback* i_beginCallback, ProfileEndCallback* i_endCallback)
+{
+  if (i_beginCallback == nullptr)
+  {
+    g_profileBeginCallback = &DummyBegin;
+  }
+  else
+  {
+    g_profileBeginCallback = i_beginCallback;
+  }
+
+  if (i_endCallback == nullptr)
+  {
+    g_profileEndCallback = &DummyEnd;
+  }
+  else
+  {
+    g_profileEndCallback = i_endCallback;
+  }
+}
+
+void ProfileBegin(const char* i_str)
+{
+  g_profileBeginCallback(i_str);
+}
+
+void ProfileEnd()
+{
+  g_profileEndCallback();
+}
+
+} // namespace profile_interface
+#endif // PROFILE_ENABLE > 0
 

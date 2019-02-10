@@ -30,7 +30,7 @@ void LogCallback(int i, const char*str)
 
 App::App()
 {
-  LOGSETUP(&LogCallback);
+  LOG_SETUP(&LogCallback);
 }
 
 bool App::init()
@@ -338,14 +338,14 @@ void App::drawFrame()
   renderer->setDepthState(noDepthWrite);
   renderer->apply();
 
-  LOGERR("Error Test!");
-  LOGERR_FMT("Error Test! %s %d %d", "data", 156);
-  
-  LOGWARN("Warn Test!");
-  LOGWARN_FMT("Warn Test! %s %d", "data", 156);
-
-  LOGINFO("Info Test!");
-  LOGINFO_FMT("Info Test! %s %d", "data", 156);
+  //LOG_ERR("Error Test!");
+  //LOG_ERR_FMT("Error Test! %s %d %d", "data", 156); // format error test
+  //
+  //LOG_WARN("Warn Test!");
+  //LOG_WARN_FMT("Warn Test! %s %d", "data", 156);
+  //
+  //LOG_INFO("Info Test!");
+  //LOG_INFO_FMT("Info Test! %s %d", "data", 156);
   {
     char buffer[100];
     float xPos = (float)width - 250.0f;
