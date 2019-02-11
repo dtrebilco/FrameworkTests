@@ -66,7 +66,6 @@ static void DummyEnd()
 static ProfileBeginCallback* g_profileBeginCallback = &DummyBegin;
 static ProfileEndCallback* g_profileEndCallback = &DummyEnd;
 
-
 void SetProfileCallback(ProfileBeginCallback* i_beginCallback, ProfileEndCallback* i_endCallback)
 {
   if (i_beginCallback == nullptr)
