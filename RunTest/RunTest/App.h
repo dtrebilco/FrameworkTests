@@ -4,7 +4,7 @@
 //======================================================================
 
 #include "../Framework3/OpenGL/OpenGLApp.h"
-
+#include "../Framework3/Util/Model.h"
 
 class App : public OpenGLApp {
 public:
@@ -27,4 +27,7 @@ protected:
 
   mat4 m_projection; //!< The projection matrix used
   mat4 m_modelView;  //!< The model-view matrix used
+  Model m_sphere;
+  Model m_capsule1;
+  Model m_capsule2;
 };

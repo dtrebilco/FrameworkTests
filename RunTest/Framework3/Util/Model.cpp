@@ -58,6 +58,25 @@ void subDivide(float3 *&dest, const float3 &v0, const float3 &v1, const float3 &
 	}
 }
 
+void subDivide(float3 *&dest, const float3 &v0, const float3 &v1, int level, const float3& offset) {
+  if (level) {
+    level--;
+    float3 v2 = normalize(v0 + v1);
+
+    subDivide(dest, v0, v2, level, offset);
+    subDivide(dest, v2, v1, level, offset);
+  }
+  else {
+    *dest++ = v0 - offset;
+    *dest++ = v1 - offset;
+    *dest++ = v0 + offset;
+
+    *dest++ = v0 + offset;
+    *dest++ = v1 + offset;
+    *dest++ = v1 - offset;
+  }
+}
+
 void Model::createSphere(const int subDivLevel){
 	const int nVertices = 8 * 3 * (1 << (2 * subDivLevel));
 
@@ -76,7 +95,7 @@ void Model::createSphere(const int subDivLevel){
 	subDivide(dest, py0, pz0, px1, subDivLevel);
 	subDivide(dest, py0, px1, pz1, subDivLevel);
 	subDivide(dest, py0, pz1, px0, subDivLevel);
-	subDivide(dest, py1, pz0, px0, subDivLevel);
+  subDivide(dest, py1, pz0, px0, subDivLevel);
 	subDivide(dest, py1, px0, pz1, subDivLevel);
 	subDivide(dest, py1, pz1, px1, subDivLevel);
 	subDivide(dest, py1, px1, pz0, subDivLevel);
@@ -86,6 +105,69 @@ void Model::createSphere(const int subDivLevel){
 	addStream(TYPE_VERTEX, 3, nVertices, (float *) vertices, NULL, false);
 	nIndices = nVertices;
 	addBatch(0, nVertices);
+}
+
+void Model::createCapsule(const int subDivLevel, float radius, float height) {
+  int nVertices = 8 * 3 * (1 << (2 * subDivLevel));
+  nVertices += 4 * (1 << subDivLevel) * 6;
+
+  float cylinderHeight = height - radius - radius;
+  cylinderHeight /= radius;
+  float halfCylinderHeight = cylinderHeight * 0.5f;
+
+  float3 *vertices = new float3[nVertices];
+
+  // Tessellate a octahedron
+  float3 px0(-1, 0, 0);
+  float3 px1(1, 0, 0);
+  float3 py0(0, -1, 0);
+  float3 py1(0, 1, 0);
+  float3 pz0(0, 0, -1);
+  float3 pz1(0, 0, 1);
+
+  float3 *dest = vertices;
+  float3 *bottomStart = dest;
+  subDivide(dest, py0, px0, pz0, subDivLevel);
+  subDivide(dest, py0, pz0, px1, subDivLevel);
+  subDivide(dest, py0, px1, pz1, subDivLevel);
+  subDivide(dest, py0, pz1, px0, subDivLevel);
+
+  while (bottomStart != dest)
+  {
+    bottomStart->y -= halfCylinderHeight;
+    bottomStart++;
+  }
+
+  float3 *topStart = dest;
+  subDivide(dest, py1, pz0, px0, subDivLevel);
+  subDivide(dest, py1, px0, pz1, subDivLevel);
+  subDivide(dest, py1, pz1, px1, subDivLevel);
+  subDivide(dest, py1, px1, pz0, subDivLevel);
+
+  while (topStart != dest)
+  {
+    topStart->y += halfCylinderHeight;
+    topStart++;
+  }
+
+  float3 offset(0.0, halfCylinderHeight, 0.0f);
+  subDivide(dest, px0, pz1, subDivLevel, offset);
+  subDivide(dest, pz1, px1, subDivLevel, offset);
+  subDivide(dest, px1, pz0, subDivLevel, offset);
+  subDivide(dest, pz0, px0, subDivLevel, offset);
+
+  float3 *sizeVert = vertices;
+  while (sizeVert != dest)
+  {
+    *sizeVert *= radius;
+    sizeVert++;
+  }
+
+  ASSERT(dest - vertices == nVertices);
+
+  addStream(TYPE_VERTEX, 3, nVertices, (float *)vertices, NULL, false);
+  nIndices = nVertices;
+  addBatch(0, nVertices);
 }
 
 void Model::createIsoSphere(const int subDivLevel){

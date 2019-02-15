@@ -54,6 +54,7 @@ public:
 
 	// Utility functions
 	void createSphere(const int subDivLevel);
+  void createCapsule(const int subDivLevel, float radius, float height);
   void createIsoSphere(const int subDivLevel);
 
 	StreamID findStream(const AttributeType type, const uint index = 0) const;

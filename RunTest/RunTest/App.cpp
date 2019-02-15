@@ -66,6 +66,15 @@ bool App::load()
   // Set the shader version used
   ((OpenGLRenderer*)renderer)->SetShaderVersionStr("#version 130");
   
+  m_sphere.createSphere(3);
+  m_sphere.makeDrawable(renderer);
+
+  m_capsule1.createCapsule(3, 3.0f, 7.0f);
+  m_capsule1.makeDrawable(renderer);
+
+  m_capsule2.createCapsule(3, 1.0f, 7.0f);
+  m_capsule2.makeDrawable(renderer);
+
   return true;
 }
 
@@ -298,8 +307,13 @@ void App::drawFrame()
   float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
   renderer->clear(true, true, false, clearColor);
 
+  glColor3f(1.0f, 0.0f, 0.0f);
   renderer->reset();
   renderer->apply();
+
+  //m_sphere.draw(renderer);
+  //m_capsule1.draw(renderer);
+  m_capsule2.draw(renderer);
 
   // Floor
   glColor3f(0.0f, 1.0f, 0.0f);
