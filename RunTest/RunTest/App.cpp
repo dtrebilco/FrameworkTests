@@ -72,7 +72,7 @@ bool App::load()
   m_capsule1.createCapsule(3, 3.0f, 7.0f);
   m_capsule1.makeDrawable(renderer);
 
-  m_capsule2.createCapsule(3, 1.0f, 7.0f);
+  m_capsule2.createCylinder(3, 1.0f, 7.0f);
   m_capsule2.makeDrawable(renderer);
 
   return true;

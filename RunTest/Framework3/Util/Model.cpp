@@ -107,11 +107,11 @@ void Model::createSphere(const int subDivLevel){
 	addBatch(0, nVertices);
 }
 
-void Model::createCapsule(const int subDivLevel, float radius, float height) {
+void Model::createCapsule(const int subDivLevel, float radius, float height, float capScale) {
   int nVertices = 8 * 3 * (1 << (2 * subDivLevel));
   nVertices += 4 * (1 << subDivLevel) * 6;
 
-  float cylinderHeight = height - radius - radius;
+  float cylinderHeight = height - (radius * capScale * 2.0f);
   cylinderHeight /= radius;
   float halfCylinderHeight = cylinderHeight * 0.5f;
 
@@ -134,6 +134,7 @@ void Model::createCapsule(const int subDivLevel, float radius, float height) {
 
   while (bottomStart != dest)
   {
+    bottomStart->y *= capScale;
     bottomStart->y -= halfCylinderHeight;
     bottomStart++;
   }
@@ -146,6 +147,7 @@ void Model::createCapsule(const int subDivLevel, float radius, float height) {
 
   while (topStart != dest)
   {
+    topStart->y *= capScale;
     topStart->y += halfCylinderHeight;
     topStart++;
   }
@@ -168,6 +170,11 @@ void Model::createCapsule(const int subDivLevel, float radius, float height) {
   addStream(TYPE_VERTEX, 3, nVertices, (float *)vertices, NULL, false);
   nIndices = nVertices;
   addBatch(0, nVertices);
+}
+
+void Model::createCylinder(const int subDivLevel, float radius, float height)
+{
+  createCapsule(subDivLevel, radius, height, 0.0f);
 }
 
 void Model::createIsoSphere(const int subDivLevel){
