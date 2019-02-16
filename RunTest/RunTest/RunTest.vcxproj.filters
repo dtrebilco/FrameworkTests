@@ -98,6 +98,7 @@
       <Filter>Framework3\OpenGL\Extensions</Filter>
     </ClCompile>
     <ClCompile Include="LogInterface.cpp" />
+    <ClCompile Include="Profiler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Framework3\BaseApp.h">
@@ -168,6 +169,7 @@
       <Filter>Framework3\OpenGL\Extensions</Filter>
     </ClInclude>
     <ClInclude Include="LogInterface.h" />
+    <ClInclude Include="Profiler.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Framework3\Windows\Resources.rc">
