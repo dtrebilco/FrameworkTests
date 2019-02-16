@@ -6,6 +6,9 @@
 #include "App.h"
 #include <vector>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <string>
 
 #include "LogInterface.h"
 
@@ -74,6 +77,14 @@ bool App::load()
 
   m_capsule2.createCylinder(3, 1.0f, 7.0f);
   m_capsule2.makeDrawable(renderer);
+
+  //std::ifstream file("test.txt");
+  //if (file.is_open())
+  //{
+  //  std::string line;
+  //  std::getline(file, line);
+  //  int a = 0;
+  //}
 
   return true;
 }
@@ -296,7 +307,7 @@ void App::drawFrame()
 
   m_projection = perspectiveMatrixX(1.5f, width, height, 0.1f, 4000);
   //mat4 modelview = scale(1.0f, 1.0f, -1.0f) * rotateXY(-wx, -wy) * translate(-camPos) * rotateX(PI * 0.5f);
-  m_modelView = rotateXY(-wx, -wy) * translate(-camPos);
+  m_modelView = rotateXY(-wx, -wy) * translate(-camPos) * scale(1.0f, 1.0f, -1.0f);
 
   glMatrixMode(GL_PROJECTION);
   glLoadMatrixf(value_ptr(m_projection));
@@ -311,9 +322,30 @@ void App::drawFrame()
   renderer->reset();
   renderer->apply();
 
+  glBegin(GL_LINES);
+  glColor3f(1.0f, 0.0f, 0.0f);
+  glVertex3f(0.0f, 0.0f, 0.0f);
+  glVertex3f(1.0f, 0.0f, 0.0f);
+
+  glColor3f(0.0f, 1.0f, 0.0f);
+  glVertex3f(0.0f, 0.0f, 0.0f);
+  glVertex3f(0.0f, 1.0f, 0.0f);
+
+  glColor3f(0.0f, 0.0f, 1.0f);
+  glVertex3f(0.0f, 0.0f, 0.0f);
+  glVertex3f(0.0f, 0.0f, 1.0f);
+
+  glEnd();
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadMatrixf(value_ptr(m_modelView * translate(10.0f, 0.0f, -2.0f)));
+
   //m_sphere.draw(renderer);
   //m_capsule1.draw(renderer);
   m_capsule2.draw(renderer);
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadMatrixf(value_ptr(m_modelView));
 
   // Floor
   glColor3f(0.0f, 1.0f, 0.0f);
@@ -321,12 +353,12 @@ void App::drawFrame()
   for (uint32_t i = 0; i <= 100; i++)
   {
     glVertex3i(i, 0, 0);
-    glVertex3i(i, 0, 100);
+    glVertex3i(i, 0, -100);
   }
   for (uint32_t i = 0; i <= 100; i++)
   {
-    glVertex3i(0, 0, i);
-    glVertex3i(100, 0, i);
+    glVertex3i(0, 0, -i);
+    glVertex3i(100, 0, -i);
   }
   glEnd();
 
