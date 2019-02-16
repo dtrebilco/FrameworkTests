@@ -350,12 +350,12 @@ void App::drawFrame()
   // Floor
   glColor3f(0.0f, 1.0f, 0.0f);
   glBegin(GL_LINES);
-  for (uint32_t i = 0; i <= 100; i++)
+  for (int32_t i = 0; i <= 100; i++)
   {
     glVertex3i(i, 0, 0);
     glVertex3i(i, 0, -100);
   }
-  for (uint32_t i = 0; i <= 100; i++)
+  for (int32_t i = 0; i <= 100; i++)
   {
     glVertex3i(0, 0, -i);
     glVertex3i(100, 0, -i);
