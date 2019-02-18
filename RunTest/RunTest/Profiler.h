@@ -7,6 +7,10 @@
 //       https://github.com/catapult-project/catapult
 //       https://src.chromium.org/viewvc/chrome/trunk/src/base/debug/trace_event.h?view=markup
 
+  //https://akrzemi1.wordpress.com/2011/05/11/parsing-strings-at-compile-time-part-i/
+  //https://www.codeproject.com/Tips/1208152/How-to-Check-If-a-String-is-Literal-in-Compile-tim
+
+
 namespace profiler
 {
   void Register();
