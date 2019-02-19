@@ -11,6 +11,7 @@
 #include <string>
 
 #include "LogInterface.h"
+#include "Profiler.h"
 
 extern long g_allocRequestCount;
 extern long g_allocFreeCount;
@@ -34,6 +35,7 @@ void LogCallback(int i, const char*str)
 App::App()
 {
   LOG_SETUP(&LogCallback);
+  profiler::Register();
 }
 
 bool App::init()
@@ -58,7 +60,12 @@ bool App::onKey(const uint key, const bool pressed)
     switch (key)
     {
     case '1': 
+      profiler::Begin(10000000);
       break;
+    case '2':
+      profiler::EndFileJson("Profile");
+      break;
+
     }
   }
   return BaseApp::onKey(key, pressed);
@@ -304,64 +311,88 @@ void DrawWireBox(const vec3& i_center, const vec3& i_extents)
 
 void App::drawFrame()
 {
+  char tag[10];
+  strcpy(tag, "test");
+  const char * val = "test";
+  PROFILE_SCOPE("test \"junk\" \\ ");
 
-  m_projection = perspectiveMatrixX(1.5f, width, height, 0.1f, 4000);
-  //mat4 modelview = scale(1.0f, 1.0f, -1.0f) * rotateXY(-wx, -wy) * translate(-camPos) * rotateX(PI * 0.5f);
-  m_modelView = rotateXY(-wx, -wy) * translate(-camPos) * scale(1.0f, 1.0f, -1.0f);
+  PROFILE_SCOPE("test2 \"junk");
 
-  glMatrixMode(GL_PROJECTION);
-  glLoadMatrixf(value_ptr(m_projection));
+  PROFILE_SCOPE("test3 \\junk");
 
-  glMatrixMode(GL_MODELVIEW);
-  glLoadMatrixf(value_ptr(m_modelView));
+  PROFILE_SCOPE("OuterScope");
 
-  float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-  renderer->clear(true, true, false, clearColor);
+  {
+    PROFILE_SCOPE("Setup matrices");
 
-  glColor3f(1.0f, 0.0f, 0.0f);
-  renderer->reset();
-  renderer->apply();
+    m_projection = perspectiveMatrixX(1.5f, width, height, 0.1f, 4000);
+    //mat4 modelview = scale(1.0f, 1.0f, -1.0f) * rotateXY(-wx, -wy) * translate(-camPos) * rotateX(PI * 0.5f);
+    m_modelView = rotateXY(-wx, -wy) * translate(-camPos) * scale(1.0f, 1.0f, -1.0f);
 
-  glBegin(GL_LINES);
-  glColor3f(1.0f, 0.0f, 0.0f);
-  glVertex3f(0.0f, 0.0f, 0.0f);
-  glVertex3f(1.0f, 0.0f, 0.0f);
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(value_ptr(m_projection));
 
-  glColor3f(0.0f, 1.0f, 0.0f);
-  glVertex3f(0.0f, 0.0f, 0.0f);
-  glVertex3f(0.0f, 1.0f, 0.0f);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf(value_ptr(m_modelView));
+  }
 
-  glColor3f(0.0f, 0.0f, 1.0f);
-  glVertex3f(0.0f, 0.0f, 0.0f);
-  glVertex3f(0.0f, 0.0f, 1.0f);
+  {
+    PROFILE_SCOPE("Clear screen");
+    float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    renderer->clear(true, true, false, clearColor);
+  }
 
-  glEnd();
+  {
+    PROFILE_SCOPE("Draw axis");
 
-  glMatrixMode(GL_MODELVIEW);
-  glLoadMatrixf(value_ptr(m_modelView * translate(10.0f, 0.0f, -2.0f)));
+    glColor3f(1.0f, 0.0f, 0.0f);
+    renderer->reset();
+    renderer->apply();
 
-  //m_sphere.draw(renderer);
-  //m_capsule1.draw(renderer);
-  m_capsule2.draw(renderer);
+    glBegin(GL_LINES);
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(1.0f, 0.0f, 0.0f);
 
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 1.0f, 0.0f);
+
+    glColor3f(0.0f, 0.0f, 1.0f);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 0.0f, 1.0f);
+
+    glEnd();
+  }
+  {
+    PROFILE_SCOPE("DrawCapsule");
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf(value_ptr(m_modelView * translate(10.0f, 0.0f, -2.0f)));
+
+    //m_sphere.draw(renderer);
+    //m_capsule1.draw(renderer);
+    m_capsule2.draw(renderer);
+  }
   glMatrixMode(GL_MODELVIEW);
   glLoadMatrixf(value_ptr(m_modelView));
 
   // Floor
-  glColor3f(0.0f, 1.0f, 0.0f);
-  glBegin(GL_LINES);
-  for (int32_t i = 0; i <= 100; i++)
   {
-    glVertex3i(i, 0, 0);
-    glVertex3i(i, 0, -100);
-  }
-  for (int32_t i = 0; i <= 100; i++)
-  {
-    glVertex3i(0, 0, -i);
-    glVertex3i(100, 0, -i);
-  }
-  glEnd();
-
+    PROFILE_SCOPE("Floor");
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glBegin(GL_LINES);
+    for (int32_t i = 0; i <= 100; i++)
+    {
+      glVertex3i(i, 0, 0);
+      glVertex3i(i, 0, -100);
+    }
+    for (int32_t i = 0; i <= 100; i++)
+    {
+      glVertex3i(0, 0, -i);
+      glVertex3i(100, 0, -i);
+    }
+    glEnd();
+   }
  
   // Boxes
   glBegin(GL_QUADS);
@@ -393,6 +424,7 @@ void App::drawFrame()
   //LOG_INFO("Info Test!");
   //LOG_INFO_FMT("Info Test! %s %d", "data", 156);
   {
+    PROFILE_SCOPE("Text");
     char buffer[100];
     float xPos = (float)width - 250.0f;
 

@@ -84,11 +84,11 @@ namespace profile_interface
 }
 
 #define PROFILE_SETUP(x,y) profile_interface::SetProfileCallback(x,y)
-#define PROFILE_BEGIN(x) profile_interface::ProfileBegin(x)
+#define PROFILE_BEGIN(x) static_assert(x[0] != 0, "Only static strings"); profile_interface::ProfileBegin(x)
 #define PROFILE_END() profile_interface::ProfileEnd()
 #define PROFILE_SCOPE_INTERNAL2(X,Y) X ## Y
 #define PROFILE_SCOPE_INTERNAL(a,b) PROFILE_SCOPE_INTERNAL2(a,b)
-#define PROFILE_SCOPE(x) profile_interface::ProfileScope PROFILE_SCOPE_INTERNAL(p,__LINE__) (x)
+#define PROFILE_SCOPE(x) static_assert(x[0] != 0, "Only static strings"); profile_interface::ProfileScope PROFILE_SCOPE_INTERNAL(p,__LINE__) (x)
 
 #else
 

@@ -140,6 +140,7 @@ bool End(std::ostream& o_outStream)
   bool first = true;
   int32_t threadCounter = 0;
 
+  std::string cleanTag;
   o_outStream << "{\"traceEvents\": [\n";
   for (const ProfileRecord& entry : g_pData->m_records)
   {
@@ -171,6 +172,20 @@ bool End(std::ostream& o_outStream)
         tag = stack.m_tags.back();
         stack.m_tags.pop_back();
       }
+    }
+
+    // Markup invalid json characters
+    if (strchr(tag, '"') != nullptr ||
+        strchr(tag, '\\') != nullptr)
+    {
+      cleanTag = tag;
+      size_t startPos = 0;
+      while ((startPos = cleanTag.find_first_of("\\\"", startPos)) != std::string::npos)
+      {
+        cleanTag.insert(startPos, 1, '\\');
+        startPos += 2;
+      }
+      tag = cleanTag.c_str();
     }
 
     // Get the microsecond count
