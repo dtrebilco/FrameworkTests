@@ -10,6 +10,7 @@
 #include <sstream>
 #include <fstream>
 #include <memory>
+#include <ctime>
 
 namespace profiler
 {
@@ -207,26 +208,35 @@ bool End(std::string& o_outString)
   return retval;
 }
 
-bool EndFileJson(const char* i_fileName)
+bool EndFileJson(const char* i_fileName, bool i_appendDate)
 {
-  std::ofstream file(i_fileName);
+  std::ofstream file;
+  if (i_appendDate)
+  {
+    // Create a filename with the current date in it
+    std::time_t t = std::time(nullptr);
+    tm timeBuf;
+    localtime_s(&timeBuf, &t);
+    char timeStr[100];
+    if (std::strftime(timeStr, sizeof(timeStr), "%Y%m%d-%H%M%S", &timeBuf) == 0)
+    {
+      return false;
+    }
+
+    char newFilename[1024];
+    snprintf(newFilename, sizeof(newFilename), "%s_%s.json", i_fileName, timeStr);
+    file.open(newFilename);
+  }
+  else
+  {
+    file.open(i_fileName);
+  }
+
   if (!file.is_open())
   {
     return false;
   }
   return End(file);
 }
-
-//void EndFileHtml(const char* i_fileName)
-//{
-//  std::lock_guard<std::mutex> lock(g_profileAccess);
-//  if (!g_profileEnabled)
-//  {
-//    return;
-//  }
-//  g_profileEnabled = false;
-//
-//
-//}
 
 }

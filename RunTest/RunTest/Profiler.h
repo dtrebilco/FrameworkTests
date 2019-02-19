@@ -11,7 +11,7 @@
   //https://akrzemi1.wordpress.com/2011/05/11/parsing-strings-at-compile-time-part-i/
   //https://www.codeproject.com/Tips/1208152/How-to-Check-If-a-String-is-Literal-in-Compile-tim
 
-
+// limitations - no string copying, no proper thread ids, no thread names
 namespace profiler
 {
   // Must be called before any other profile threads are active
@@ -20,6 +20,5 @@ namespace profiler
   bool Begin(size_t i_bufferSize = 10000000);
   bool End(std::ostream& o_outStream);
   bool End(std::string& o_outString);
-  bool EndFileJson(const char* i_fileName);
-  bool EndFileHtml(const char* i_fileName);
+  bool EndFileJson(const char* i_fileName, bool i_appendDate = true);
 }
