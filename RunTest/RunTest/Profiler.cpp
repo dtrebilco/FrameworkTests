@@ -34,6 +34,7 @@ struct ProfileData
   std::mutex m_access;
   clock::time_point m_startTime;
   std::vector<ProfileRecord> m_records;
+  size_t m_maxRecords = 0;
 };
 static std::unique_ptr<ProfileData> g_pData;
 
@@ -57,7 +58,7 @@ static void ProfileBeginCallback(const char* i_str)
   newData.m_tag = i_str;
 
   std::lock_guard<std::mutex> lock(g_pData->m_access);
-  if (g_pData->m_records.size() < g_pData->m_records.capacity())
+  if (g_pData->m_records.size() < g_pData->m_maxRecords)
   {
     g_pData->m_records.push_back(newData);
 
@@ -79,7 +80,7 @@ static void ProfileEndCallback()
   newData.m_tag = nullptr;
 
   std::lock_guard<std::mutex> lock(g_pData->m_access);
-  if (g_pData->m_records.size() < g_pData->m_records.capacity())
+  if (g_pData->m_records.size() < g_pData->m_maxRecords)
   {
     g_pData->m_records.push_back(newData);
   }
@@ -108,8 +109,9 @@ bool Begin(size_t i_bufferSize)
   }
 
   // Clear all data (may have been some extra in buffers from previous enable)
+  g_pData->m_maxRecords = i_bufferSize / sizeof(ProfileRecord);
   g_pData->m_records.resize(0);
-  g_pData->m_records.reserve(i_bufferSize / sizeof(ProfileRecord));
+  g_pData->m_records.reserve(g_pData->m_maxRecords);
   g_pData->m_startTime = clock::now();
 
   g_pData->m_enabled = true;
