@@ -57,10 +57,13 @@ static void ProfileBeginCallback(const char* i_str)
   newData.m_tag = i_str;
 
   std::lock_guard<std::mutex> lock(g_pData->m_access);
-  g_pData->m_records.push_back(newData);
-  
-  // Assign the time as the last possible thing
-  g_pData->m_records.back().m_time = clock::now();
+  if (g_pData->m_records.size() < g_pData->m_records.capacity())
+  {
+    g_pData->m_records.push_back(newData);
+
+    // Assign the time as the last possible thing
+    g_pData->m_records.back().m_time = clock::now();
+  }
 }
 
 static void ProfileEndCallback()
@@ -76,7 +79,10 @@ static void ProfileEndCallback()
   newData.m_tag = nullptr;
 
   std::lock_guard<std::mutex> lock(g_pData->m_access);
-  g_pData->m_records.push_back(newData);
+  if (g_pData->m_records.size() < g_pData->m_records.capacity())
+  {
+    g_pData->m_records.push_back(newData);
+  }
 }
 
 void Register()
@@ -88,7 +94,7 @@ void Register()
   }
 }
 
-bool Begin()
+bool Begin(size_t i_bufferSize)
 {
   if (!g_pData)
   {
@@ -103,7 +109,7 @@ bool Begin()
 
   // Clear all data (may have been some extra in buffers from previous enable)
   g_pData->m_records.resize(0);
-  g_pData->m_records.reserve(10000);
+  g_pData->m_records.reserve(i_bufferSize / sizeof(ProfileRecord));
   g_pData->m_startTime = clock::now();
 
   g_pData->m_enabled = true;
@@ -165,7 +171,7 @@ bool End(std::ostream& o_outStream)
     }
 
     // Get the microsecond count
-    auto msCount = std::chrono::duration_cast<std::chrono::microseconds>(entry.m_time - g_pData->m_startTime).count();
+    long long msCount = std::chrono::duration_cast<std::chrono::microseconds>(entry.m_time - g_pData->m_startTime).count();
 
     if (!first)
     {
@@ -173,12 +179,18 @@ bool End(std::ostream& o_outStream)
     }
     first = false;
 
+    char msString[64];
+    snprintf(msString, sizeof(msString), "%lld", msCount);
+
+    char indexString[64];
+    snprintf(indexString, sizeof(indexString), "%d", stack.m_index);
+
     // Format the string
     o_outStream <<
       "{\"name\": \"" << tag <<
       "\", \"ph\": \"" << typeTag << 
-      "\", \"ts\":" << msCount << 
-      ", \"tid\":" << stack.m_index << 
+      "\", \"ts\":" << msString << 
+      ", \"tid\":" << indexString << 
       ", \"cat\":\"\", \"pid\" : 0, \"args\" : {} }";
   }
   o_outStream << "\n]\n}\n";

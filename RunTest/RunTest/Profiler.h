@@ -17,7 +17,7 @@ namespace profiler
   // Must be called before any other profile threads are active
   void Register();
 
-  bool Begin();
+  bool Begin(size_t i_bufferSize = 10000000);
   bool End(std::ostream& o_outStream);
   bool End(std::string& o_outString);
   bool EndFileJson(const char* i_fileName);
