@@ -8,12 +8,14 @@
 #include <chrono>
 #include <unordered_map>
 #include <sstream>
+#include <fstream>
+#include <memory>
 
 namespace profiler
 {
 using clock = std::chrono::high_resolution_clock;
 
-struct ProfileData
+struct ProfileRecord
 {
   clock::time_point m_time; // The time of the profile data
   std::thread::id m_threadID;  // The id of the thread
@@ -26,14 +28,19 @@ struct Tags
   std::vector<const char*> m_tags;
 };
 
-static std::atomic_bool g_profileEnabled = false;
-static std::mutex g_profileAccess;
-static clock::time_point g_startTime;
-static std::vector<ProfileData> g_profileData;
+struct ProfileData
+{
+  std::atomic_bool m_enabled = false;
+  std::mutex m_access;
+  clock::time_point m_startTime;
+  std::vector<ProfileRecord> m_records;
+};
+static std::unique_ptr<ProfileData> g_pData;
+
 
 static void ProfileBeginCallback(const char* i_str)
 {
-  if (!g_profileEnabled)
+  if (!g_pData->m_enabled)
   {
     return;
   }
@@ -44,62 +51,78 @@ static void ProfileBeginCallback(const char* i_str)
     i_str = "Unknown";
   }
 
-  ProfileData newData = {};
+  // Create the profile record
+  ProfileRecord newData = {};
   newData.m_threadID = std::this_thread::get_id();
   newData.m_tag = i_str;
 
-  std::lock_guard<std::mutex> lock(g_profileAccess);
-  g_profileData.push_back(newData);
+  std::lock_guard<std::mutex> lock(g_pData->m_access);
+  g_pData->m_records.push_back(newData);
   
   // Assign the time as the last possible thing
-  g_profileData.back().m_time = clock::now();
+  g_pData->m_records.back().m_time = clock::now();
 }
 
 static void ProfileEndCallback()
 {
-  if (!g_profileEnabled)
+  if (!g_pData->m_enabled)
   {
     return;
   }
 
-  ProfileData newData = {};
+  ProfileRecord newData = {};
   newData.m_time = clock::now(); // Always get time as soon as possible
   newData.m_threadID = std::this_thread::get_id();
   newData.m_tag = nullptr;
 
-  std::lock_guard<std::mutex> lock(g_profileAccess);
-  g_profileData.push_back(newData);
+  std::lock_guard<std::mutex> lock(g_pData->m_access);
+  g_pData->m_records.push_back(newData);
 }
 
 void Register()
 {
-  PROFILE_SETUP(ProfileBeginCallback, ProfileEndCallback);
+  if (!g_pData)
+  {
+    g_pData = std::make_unique<ProfileData>();
+    PROFILE_SETUP(ProfileBeginCallback, ProfileEndCallback);
+  }
 }
 
-void Begin()
+bool Begin()
 {
-  std::lock_guard<std::mutex> lock(g_profileAccess);
-  if (g_profileEnabled)
+  if (!g_pData)
   {
-    return;
+    return false;
+  }
+
+  std::lock_guard<std::mutex> lock(g_pData->m_access);
+  if (g_pData->m_enabled)
+  {
+    return false;
   }
 
   // Clear all data (may have been some extra in buffers from previous enable)
-  g_profileData.resize(0);
-  g_profileData.reserve(10000);
-  g_startTime = clock::now();
+  g_pData->m_records.resize(0);
+  g_pData->m_records.reserve(10000);
+  g_pData->m_startTime = clock::now();
 
-  g_profileEnabled = true;
+  g_pData->m_enabled = true;
+  return true;
 }
 
-void End(std::string& o_outString)
+bool End(std::ostream& o_outStream)
 {
-  std::lock_guard<std::mutex> lock(g_profileAccess);
-  if (!g_profileEnabled)
+  if (!g_pData)
   {
-    return;
+    return false;
   }
-  g_profileEnabled = false;
+
+  std::lock_guard<std::mutex> lock(g_pData->m_access);
+  if (!g_pData->m_enabled)
+  {
+    return false;
+  }
+  g_pData->m_enabled = false;
 
   // Init this thread as the primary thread
   std::unordered_map<std::thread::id, Tags> threadStack;
@@ -107,9 +130,9 @@ void End(std::string& o_outString)
 
   bool first = true;
   int32_t threadCounter = 0;
-  std::stringstream ss;
-  ss << "{\"traceEvents\": [\n";
-  for (const ProfileData& entry : g_profileData)
+
+  o_outStream << "{\"traceEvents\": [\n";
+  for (const ProfileRecord& entry : g_pData->m_records)
   {
     auto& stack = threadStack[entry.m_threadID];
     
@@ -142,47 +165,54 @@ void End(std::string& o_outString)
     }
 
     // Get the microsecond count
-    auto msCount = std::chrono::duration_cast<std::chrono::microseconds>(entry.m_time - g_startTime).count();
+    auto msCount = std::chrono::duration_cast<std::chrono::microseconds>(entry.m_time - g_pData->m_startTime).count();
 
     if (!first)
     {
-      ss << ",\n";
+      o_outStream << ",\n";
     }
     first = false;
 
     // Format the string
-    ss << "{\"name\": \"" << tag << 
-          "\", \"ph\": \"" << typeTag << 
-          "\", \"ts\":" << msCount << 
-          ", \"tid\":" << stack.m_index << 
-          ", \"cat\":\"\", \"pid\" : 0, \"args\" : {} }";
+    o_outStream <<
+      "{\"name\": \"" << tag <<
+      "\", \"ph\": \"" << typeTag << 
+      "\", \"ts\":" << msCount << 
+      ", \"tid\":" << stack.m_index << 
+      ", \"cat\":\"\", \"pid\" : 0, \"args\" : {} }";
   }
-  ss << "\n]\n}\n";
+  o_outStream << "\n]\n}\n";
+  return true;
+}
 
+bool End(std::string& o_outString)
+{
+  std::stringstream ss;
+  bool retval = End(ss);
   o_outString = ss.str();
+  return retval;
 }
 
-void EndFileJson(const char* i_fileName)
+bool EndFileJson(const char* i_fileName)
 {
-  std::lock_guard<std::mutex> lock(g_profileAccess);
-  if (!g_profileEnabled)
+  std::ofstream file(i_fileName);
+  if (!file.is_open())
   {
-    return;
+    return false;
   }
-  g_profileEnabled = false;
-
+  return End(file);
 }
 
-void EndFileHtml(const char* i_fileName)
-{
-  std::lock_guard<std::mutex> lock(g_profileAccess);
-  if (!g_profileEnabled)
-  {
-    return;
-  }
-  g_profileEnabled = false;
-
-
-}
+//void EndFileHtml(const char* i_fileName)
+//{
+//  std::lock_guard<std::mutex> lock(g_profileAccess);
+//  if (!g_profileEnabled)
+//  {
+//    return;
+//  }
+//  g_profileEnabled = false;
+//
+//
+//}
 
 }

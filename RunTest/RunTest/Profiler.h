@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <ostream>
 
 // See:  http://www.gamasutra.com/view/news/176420/Indepth_Using_Chrometracing_to_view_your_inline_profiling_data.php
 //       https://aras-p.info/blog/2017/01/23/Chrome-Tracing-as-Profiler-Frontend/
@@ -13,10 +14,12 @@
 
 namespace profiler
 {
+  // Must be called before any other profile threads are active
   void Register();
 
-  void Begin();
-  void End(std::string& o_outString);
-  void EndFileJson(const char* i_fileName);
-  void EndFileHtml(const char* i_fileName);
+  bool Begin();
+  bool End(std::ostream& o_outStream);
+  bool End(std::string& o_outString);
+  bool EndFileJson(const char* i_fileName);
+  bool EndFileHtml(const char* i_fileName);
 }
