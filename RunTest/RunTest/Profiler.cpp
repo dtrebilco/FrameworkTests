@@ -96,6 +96,16 @@ void Register()
   }
 }
 
+bool IsProfiling()
+{
+  if (!g_pData)
+  {
+    return false;
+  }
+
+  return g_pData->m_enabled;
+}
+
 bool Begin(size_t i_bufferSize)
 {
   if (!g_pData)
