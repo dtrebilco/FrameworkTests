@@ -13,6 +13,7 @@
 ///       https://github.com/mainroach/sandbox/tree/master/chrome-event-trace
 ///       https://github.com/catapult-project/catapult
 ///       https://src.chromium.org/viewvc/chrome/trunk/src/base/debug/trace_event.h?view=markup
+///       https://docs.google.com/document/d/1CvAClvFfyA5R-PhYUmn5OOQtYMH4h6I0nSsKchNAySU/edit
 namespace profiler
 {
   /// \brief Setup the profiler systems
