@@ -156,7 +156,7 @@ bool End(std::ostream& o_outStream)
   threadStack[std::this_thread::get_id()].m_index = 0;
 
   bool first = true;
-  int32_t threadCounter = 0;
+  int32_t threadCounter = 1;
 
   std::string cleanTag;
   o_outStream << "{\"traceEvents\": [\n";
@@ -229,6 +229,20 @@ bool End(std::ostream& o_outStream)
       ", \"tid\":" << indexString << 
       ", \"cat\":\"\", \"pid\" : 0, \"args\" : {} }";
   }
+
+  // Write thread "names"
+  if (!first)
+  {
+    for (auto& t : threadStack)
+    {
+      char indexString[64];
+      snprintf(indexString, sizeof(indexString), "%d", t.second.m_index);
+      o_outStream <<
+        ",\n{\"name\": \"thread_name\", \"ph\" : \"M\", \"pid\" : 0, \"tid\" : " << indexString <<
+        ", \"args\" : {\"name\" : \"Thread_" << t.first << "\"}}";
+    }
+  }
+
   o_outStream << "\n]\n}\n";
   return true;
 }
