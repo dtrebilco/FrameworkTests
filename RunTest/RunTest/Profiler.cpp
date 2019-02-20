@@ -1,16 +1,20 @@
 #include "Profiler.h"
 #include "LogInterface.h"
 
+#include <memory>
+#include <chrono>
+#include <ctime>
+
 #include <thread>
 #include <atomic>
 #include <mutex>
+
 #include <vector>
-#include <chrono>
 #include <unordered_map>
+
 #include <sstream>
 #include <fstream>
-#include <memory>
-#include <ctime>
+
 
 namespace profiler
 {
@@ -18,26 +22,28 @@ using clock = std::chrono::high_resolution_clock;
 
 struct ProfileRecord
 {
-  clock::time_point m_time; // The time of the profile data
+  clock::time_point m_time;    // The time of the profile data
   std::thread::id m_threadID;  // The id of the thread
   const char* m_tag = nullptr; // The tag used in profiling - if empty is an end event
 };
 
 struct Tags
 {
-  int32_t m_index = -1;
-  std::vector<const char*> m_tags;
+  int32_t m_index = -1;            // The index of the thread
+  std::vector<const char*> m_tags; // The tag stack
 };
 
 struct ProfileData
 {
-  std::atomic_bool m_enabled = false;
-  std::mutex m_access;
-  clock::time_point m_startTime;
-  std::vector<ProfileRecord> m_records;
-  size_t m_maxRecords = 0;
+  clock::time_point m_startTime;        // The start time of the profile
+
+  std::atomic_bool m_enabled = false;   // If profiling is enabled
+  std::mutex m_access;                  // Access mutex for changing data
+
+  size_t m_maxRecords = 0;              // The maximum number of records
+  std::vector<ProfileRecord> m_records; // The profiling records
 };
-static std::unique_ptr<ProfileData> g_pData;
+static std::unique_ptr<ProfileData> g_pData; // The global profile data (not concrete so that nothing is allocated if no profiling is done)
 
 
 static void ProfileBeginCallback(const char* i_str)
@@ -58,6 +64,7 @@ static void ProfileBeginCallback(const char* i_str)
   newData.m_threadID = std::this_thread::get_id();
   newData.m_tag = i_str;
 
+  // There is a race condition where a record could be added after the profiling has ended (m_enabled changed)- this is benign however
   std::lock_guard<std::mutex> lock(g_pData->m_access);
   if (g_pData->m_records.size() < g_pData->m_maxRecords)
   {
@@ -80,6 +87,7 @@ static void ProfileEndCallback()
   newData.m_threadID = std::this_thread::get_id();
   newData.m_tag = nullptr;
 
+  // There is a race condition where a record could be added after the profiling has ended (m_enabled changed)- this is benign however
   std::lock_guard<std::mutex> lock(g_pData->m_access);
   if (g_pData->m_records.size() < g_pData->m_maxRecords)
   {
@@ -248,6 +256,7 @@ bool EndFileJson(const char* i_fileName, bool i_appendDate)
       return false;
     }
 
+    // Append date and file extension
     char newFilename[1024];
     snprintf(newFilename, sizeof(newFilename), "%s_%s.json", i_fileName, timeStr);
     file.open(newFilename);
