@@ -159,7 +159,7 @@ bool End(std::ostream& o_outStream)
   int32_t threadCounter = 1;
 
   std::string cleanTag;
-  o_outStream << "{\"traceEvents\": [\n";
+  o_outStream << "{\"traceEvents\":[\n";
   for (const ProfileRecord& entry : g_pData->m_records)
   {
     auto& stack = threadStack[entry.m_threadID];
@@ -223,11 +223,11 @@ bool End(std::ostream& o_outStream)
 
     // Format the string
     o_outStream <<
-      "{\"name\": \"" << tag <<
-      "\", \"ph\": \"" << typeTag << 
-      "\", \"ts\":" << msString << 
-      ", \"tid\":" << indexString << 
-      ", \"cat\":\"\", \"pid\" : 0, \"args\" : {} }";
+      "{\"name\":\"" << tag <<
+      "\",\"ph\":\"" << typeTag << 
+      "\",\"ts\":" << msString << 
+      ",\"tid\":" << indexString << 
+      ",\"cat\":\"\",\"pid\":0,\"args\":{}}";
   }
 
   // Write thread "names"
@@ -238,8 +238,8 @@ bool End(std::ostream& o_outStream)
       char indexString[64];
       snprintf(indexString, sizeof(indexString), "%d", t.second.m_index);
       o_outStream <<
-        ",\n{\"name\": \"thread_name\", \"ph\" : \"M\", \"pid\" : 0, \"tid\" : " << indexString <<
-        ", \"args\" : {\"name\" : \"Thread_" << t.first << "\"}}";
+        ",\n{\"name\":\"thread_name\",\"ph\":\"M\",\"pid\":0,\"tid\":" << indexString <<
+        ",\"args\":{\"name\":\"Thread_" << t.first << "\"}}";
     }
   }
 
