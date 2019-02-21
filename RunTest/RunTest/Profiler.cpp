@@ -137,6 +137,16 @@ bool Begin(size_t i_bufferSize)
   return true;
 }
 
+static void CleanJsonStr(std::string& io_str)
+{
+  size_t startPos = 0;
+  while ((startPos = io_str.find_first_of("\\\"", startPos)) != std::string::npos)
+  {
+    io_str.insert(startPos, 1, '\\');
+    startPos += 2;
+  }
+}
+
 bool End(std::ostream& o_outStream)
 {
   if (!g_pData)
@@ -197,12 +207,7 @@ bool End(std::ostream& o_outStream)
         strchr(tag, '\\') != nullptr)
     {
       cleanTag = tag;
-      size_t startPos = 0;
-      while ((startPos = cleanTag.find_first_of("\\\"", startPos)) != std::string::npos)
-      {
-        cleanTag.insert(startPos, 1, '\\');
-        startPos += 2;
-      }
+      CleanJsonStr(cleanTag);
       tag = cleanTag.c_str();
     }
 
@@ -237,9 +242,16 @@ bool End(std::ostream& o_outStream)
     {
       char indexString[64];
       snprintf(indexString, sizeof(indexString), "%d", t.second.m_index);
+
+      // Ensure a clean json string
+      std::stringstream ss;
+      ss << t.first;
+      std::string threadName = ss.str();
+      CleanJsonStr(threadName);
+
       o_outStream <<
         ",\n{\"name\":\"thread_name\",\"ph\":\"M\",\"pid\":0,\"tid\":" << indexString <<
-        ",\"args\":{\"name\":\"Thread_" << t.first << "\"}}";
+        ",\"args\":{\"name\":\"Thread_" << threadName << "\"}}";
     }
   }
 
