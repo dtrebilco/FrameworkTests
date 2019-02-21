@@ -243,6 +243,10 @@ bool End(std::ostream& o_outStream)
       char indexString[64];
       snprintf(indexString, sizeof(indexString), "%d", t.second.m_index);
 
+      // Sort thread listing by the time that they appear in the profile (tool sorts by name)
+      char indexSpaceString[64];
+      snprintf(indexSpaceString, sizeof(indexSpaceString), "%02d", t.second.m_index);
+
       // Ensure a clean json string
       std::stringstream ss;
       ss << t.first;
@@ -251,7 +255,7 @@ bool End(std::ostream& o_outStream)
 
       o_outStream <<
         ",\n{\"name\":\"thread_name\",\"ph\":\"M\",\"pid\":0,\"tid\":" << indexString <<
-        ",\"args\":{\"name\":\"Thread_" << threadName << "\"}}";
+        ",\"args\":{\"name\":\"Thread" << indexSpaceString << "_" << threadName << "\"}}";
     }
   }
 
