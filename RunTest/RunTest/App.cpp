@@ -341,7 +341,9 @@ void App::drawFrame()
     float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     renderer->clear(true, true, false, clearColor);
   }
-
+  //glEnable(GL_SCISSOR_TEST);
+  //glViewport(0, 0, width /2, height / 2);
+  //glScissor(0, 0, width / 2, height / 2);
   {
     PROFILE_SCOPE("Draw axis");
 
@@ -439,4 +441,5 @@ void App::drawFrame()
     renderer->drawText(buffer, xPos, 198.0f, 30, 38, defaultFont, linearClamp, blendSrcAlpha, noDepthTest);
 #endif // _DEBUG
   }
+  //glDisable(GL_SCISSOR_TEST);
 }
