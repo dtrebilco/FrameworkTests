@@ -83,7 +83,11 @@ bool App::load()
   m_capsule1.makeDrawable(renderer);
 
   m_capsule2.createCylinder(3, 1.0f, 7.0f);
+  m_capsule2.computeNormals(true);
   m_capsule2.makeDrawable(renderer);
+
+  const char *attribs[] = { NULL, "normal" };
+  if ((lighting = renderer->addShader("lighting.shd", attribs, elementsOf(attribs))) == SHADER_NONE) return false;
 
   //std::ifstream file("test.txt");
   //if (file.is_open())
@@ -371,12 +375,20 @@ void App::drawFrame()
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf(value_ptr(m_modelView * translate(10.0f, 0.0f, -2.0f)));
 
+    renderer->reset();
+    renderer->setShader(lighting);
+    renderer->setShaderConstant3f("camPos", camPos);
+    renderer->apply();
+
     //m_sphere.draw(renderer);
     //m_capsule1.draw(renderer);
     m_capsule2.draw(renderer);
   }
   glMatrixMode(GL_MODELVIEW);
   glLoadMatrixf(value_ptr(m_modelView));
+
+  renderer->reset();
+  renderer->apply();
 
   // Floor
   {

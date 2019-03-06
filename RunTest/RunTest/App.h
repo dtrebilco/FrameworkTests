@@ -25,6 +25,8 @@ public:
 
 protected:
 
+  ShaderID lighting;
+
   mat4 m_projection; //!< The projection matrix used
   mat4 m_modelView;  //!< The model-view matrix used
   Model m_sphere;
