@@ -72,8 +72,8 @@ void subDivide(float3 *&dest, const float3 &v0, const float3 &v1, int level, con
     *dest++ = v0 + offset;
 
     *dest++ = v0 + offset;
-    *dest++ = v1 + offset;
     *dest++ = v1 - offset;
+    *dest++ = v1 + offset;
   }
 }
 

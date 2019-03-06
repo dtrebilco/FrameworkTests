@@ -77,16 +77,18 @@ bool App::load()
   ((OpenGLRenderer*)renderer)->SetShaderVersionStr("#version 130");
   
   m_sphere.createSphere(3);
+  m_sphere.computeNormals(true);
   m_sphere.makeDrawable(renderer);
 
   m_capsule1.createCapsule(3, 3.0f, 7.0f);
+  m_capsule1.computeNormals(true);
   m_capsule1.makeDrawable(renderer);
 
   m_capsule2.createCylinder(3, 1.0f, 7.0f);
   m_capsule2.computeNormals(true);
   m_capsule2.makeDrawable(renderer);
 
-  const char *attribs[] = { NULL, "normal" };
+  const char *attribs[] = {  NULL, NULL, "normal" };
   if ((lighting = renderer->addShader("lighting.shd", attribs, elementsOf(attribs))) == SHADER_NONE) return false;
 
   //std::ifstream file("test.txt");
@@ -377,7 +379,6 @@ void App::drawFrame()
 
     renderer->reset();
     renderer->setShader(lighting);
-    renderer->setShaderConstant3f("camPos", camPos);
     renderer->apply();
 
     //m_sphere.draw(renderer);
