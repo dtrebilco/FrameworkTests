@@ -259,11 +259,11 @@ void Model::changeAllGeneric(const bool excludeVertex){
 	}
 }
 
-BatchID Model::addBatch(const uint startIndex, const uint nIndices){
+BatchID Model::addBatch(const uint startIndex, const uint indexCount){
 	Batch batch;
 
 	batch.startIndex = startIndex;
-	batch.nIndices = nIndices;
+	batch.nIndices = indexCount;
 //	batch.startVertex = startVertex;
 //	batch.nVertices = nVertices;
 	batch.startVertex = 0;
@@ -853,21 +853,24 @@ bool Model::loadT3d(const char *fileName, const bool removePortals, const bool r
 	addStream(TYPE_NORMAL,   3, polys.getCount(), (float *) normals,   nrmIndices, false);
 
 	// Extract batches
-	char *currName = polys[0]->textureName;
-	uint i = 0;
-	startIndex = 0;
-	while (true){
-		uint indexCount = 0;
-		while (i < polys.getCount() && strcmp(polys[i]->textureName, currName) == 0){
-			indexCount += 3 * (polys[i]->vertices.getCount() - 2);
-			i++;
-		}
-		addBatch(startIndex, indexCount);
-		startIndex += indexCount;
-		if (i < polys.getCount()){
-			currName = polys[i]->textureName;
-		} else break;
-	}
+  {
+    char *currName = polys[0]->textureName;
+    uint i = 0;
+    startIndex = 0;
+    while (true) {
+      uint indexCount = 0;
+      while (i < polys.getCount() && strcmp(polys[i]->textureName, currName) == 0) {
+        indexCount += 3 * (polys[i]->vertices.getCount() - 2);
+        i++;
+      }
+      addBatch(startIndex, indexCount);
+      startIndex += indexCount;
+      if (i < polys.getCount()) {
+        currName = polys[i]->textureName;
+      }
+      else break;
+    }
+  }
 
 	// Clean up
 	for (uint i = 0; i < polys.getCount(); i++){
@@ -1048,14 +1051,14 @@ void tangentVectors(const vec3 &v0, const vec3 &v1, const vec3 &v2, const vec2 &
 }
 
 bool Model::computeTangentSpace(const bool flat){
-	StreamID streams[2] = { findStream(TYPE_VERTEX), findStream(TYPE_TEXCOORD) };
+	StreamID workStreams[2] = { findStream(TYPE_VERTEX), findStream(TYPE_TEXCOORD) };
 
-	if (streams[0] < 0 || streams[1] < 0) return false;
+	if (workStreams[0] < 0 || workStreams[1] < 0) return false;
 
 	float *vertexArrays[2];
 	uint *indices;
 
-	uint nVertices = assemble(streams, 2, vertexArrays, &indices, true);
+	uint nVertices = assemble(workStreams, 2, vertexArrays, &indices, true);
 
 	vec3 *vertices  = (vec3 *) vertexArrays[0];
 	vec2 *texCoords = (vec2 *) vertexArrays[1];
@@ -1375,12 +1378,12 @@ restart:
 			currComp += nComp;
 		}
 
-		uint *indices = new uint[nIndices];
+		uint *newIndices = new uint[nIndices];
 		for (uint j = 0; j < nIndices; j++){
-			indices[j] = j;
+			newIndices[j] = j;
 		}
 
-		streams[i].indices = indices;
+		streams[i].indices = newIndices;
 		streams[i].nVertices = nIndices;
 		streams[i].optimized = false;
 	}
@@ -1738,7 +1741,7 @@ void convertToShorts(const uint *src, int nIndices, const uint nVertices){
 	}*/
 
 	while (nIndices > 0){
-		*dest++ = *src++;
+		*dest++ = unsigned short(*src++);
 		nIndices--;
 	}
 }

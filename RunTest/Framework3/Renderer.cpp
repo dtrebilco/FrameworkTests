@@ -87,7 +87,7 @@ void Renderer::resetToDefaults(){
 	currentDepthState = DS_NONE;
 	currentStencilRef = 0;
 	currentBlendState = BS_NONE;
-	currentSampleMask = ~0;
+	currentSampleMask = ~0u;
 	currentRasterizerState = RS_NONE;
 
 
@@ -134,7 +134,7 @@ void Renderer::reset(const uint flags){
 	}
 	if (flags & RESET_BS){
 		selectedBlendState = BS_NONE;
-		selectedSampleMask = ~0;
+		selectedSampleMask = ~0u;
 	}
 	if (flags & RESET_RS) selectedRasterizerState = RS_NONE;
 
@@ -232,7 +232,7 @@ TextureID Renderer::addTexture(const char **fileNames, const bool useMipMaps, co
 		return addTexture(img, samplerState, flags);
 	} else {
 		char str[1024];
-		int n = sprintf(str, "Couldn't open texture array:\n");
+		sprintf(str, "Couldn't open texture array:\n");
 		
 		ErrorMsg(str);
 		return TEXTURE_NONE;

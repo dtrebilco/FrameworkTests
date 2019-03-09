@@ -65,7 +65,7 @@ public:
 	void changeAllGeneric(const bool excludeVertex = false);
 	void changeStreamType(const StreamID stream, const AttributeType type){ streams[stream].type = type; }
 
-	BatchID addBatch(const uint startIndex, const uint nIndices);
+	BatchID addBatch(const uint startIndex, const uint indexCount);
 	const Batch &getBatch(const BatchID batch) const { return batches[batch]; }
 	uint getBatchCount() const { return batches.getCount(); }
 	bool mergeBatches(const BatchID batch, const BatchID toMerge);

@@ -319,7 +319,7 @@ void App::drawFrame()
 {
   char tag[10];
   strcpy(tag, "test");
-  const char * val = "test";
+  //const char * val = "test";
   PROFILE_SCOPE("test \"junk\" \\ ");
 
   PROFILE_SCOPE("test2 \"junk");

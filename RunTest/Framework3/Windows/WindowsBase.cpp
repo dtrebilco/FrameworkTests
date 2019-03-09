@@ -186,7 +186,7 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hLastInst, LPSTR lpszCmdLine, 
         chdir(path);
 	}
 
-	MSG msg;
+  MSG msg = {};
 	WNDCLASS wincl;
 	wincl.hInstance = hThisInst;
 	wincl.lpszClassName = "Humus";
