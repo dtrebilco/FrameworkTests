@@ -293,17 +293,19 @@ ShaderID Renderer::addShader(const char *fileName, const char **attributeNames, 
 		ErrorMsg(String("Couldn't load \"") + fileName + "\"");
 	} else {
 #ifdef DEBUG
-		char str[66];
-		str[0] = '\n';
-		memset(str + 1, '-', sizeof(str) - 2);
-		str[sizeof(str) - 1] = '\0';
-		size_t lfn = strlen(fileName);
-		size_t start = (sizeof(str) - lfn) / 2;
+    {
+      char str[66];
+      str[0] = '\n';
+      memset(str + 1, '-', sizeof(str) - 2);
+      str[sizeof(str) - 1] = '\0';
+      size_t lfn = strlen(fileName);
+      size_t start = (sizeof(str) - lfn) / 2;
 
-		str[start - 1]   = '[';
-		str[start + lfn] = ']';
-		strncpy(str + start, fileName, lfn);
-		outputDebugString(str);
+      str[start - 1] = '[';
+      str[start + lfn] = ']';
+      strncpy(str + start, fileName, lfn);
+      outputDebugString(str);
+    }
 #endif
 
 		// Find file size
