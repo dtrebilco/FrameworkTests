@@ -52,8 +52,8 @@ namespace logger_interface
 #endif
 
 #if LOG_LEVEL > 2
-#define LOG_INFO(x) logger_interface::LogMsg(2, x)
-#define LOG_INFO_FMT(x,...) logger_interface::LogMsgFmt(2, x, __VA_ARGS__)
+#define LOG_INFO(x) logger_interface::LogMsg(3, x)
+#define LOG_INFO_FMT(x,...) logger_interface::LogMsgFmt(3, x, __VA_ARGS__)
 #else
 #define LOG_INFO(x)
 #define LOG_INFO_FMT(...)
