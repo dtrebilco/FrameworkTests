@@ -372,6 +372,8 @@ void App::drawFrame()
 
     glEnd();
   }
+
+  glColor3f(0.0f, 1.0f, 1.0f);
   {
     PROFILE_SCOPE("DrawCapsule");
     glMatrixMode(GL_MODELVIEW);

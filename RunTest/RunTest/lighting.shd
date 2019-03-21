@@ -12,9 +12,7 @@ void main(){
   vec3 viewVec = normalize(vec3(gl_ModelViewMatrix * gl_Vertex));
   vec3 normVec = -normalize(vec3(mat3(gl_ModelViewMatrix) * normal));
   
-  color.r = dot(viewVec, normVec);
-  color.g = 0.0f;
-  color.b = 0.0f;
+  color = gl_Color.rgb * dot(viewVec, normVec);
   //color = normal;
 }
 
