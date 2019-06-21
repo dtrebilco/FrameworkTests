@@ -240,6 +240,54 @@ void Model::createIsoSphere(const int subDivLevel){
 	addBatch(0, nVertices);
 }
 
+void Model::createBox(vec3 size)
+{
+    const int nVertices = 36;
+    float3 *vertices = new float3[nVertices];
+
+    // Get the 8 corners of the box
+    vec3 e = size * 0.5f;
+    vec3 pos[8] =
+    {
+      {-e.x, -e.y, -e.z}, // 0
+      {-e.x, -e.y,  e.z}, // 1
+      { e.x, -e.y,  e.z}, // 2
+      { e.x, -e.y, -e.z}, // 3
+      {-e.x,  e.y, -e.z}, // 4
+      {-e.x,  e.y,  e.z}, // 5
+      { e.x,  e.y,  e.z}, // 6
+      { e.x,  e.y, -e.z}, // 7
+    };
+
+    float3 *dest = vertices;
+    auto addPlane = [&](int a0, int a1, int a2, int a3)
+    {
+        dest[0] = pos[a0];
+        dest[1] = pos[a1];
+        dest[2] = pos[a2];
+
+        dest[3] = pos[a2];
+        dest[4] = pos[a3];
+        dest[5] = pos[a0];
+        dest += 6;
+    };
+
+    // Construct the box
+    addPlane(2, 1, 0, 3);
+    addPlane(4, 5, 6, 7);
+
+    addPlane(0, 1, 5, 4);
+    addPlane(2, 3, 7, 6);
+
+    addPlane(0, 4, 7, 3);
+    addPlane(6, 5, 1, 2);
+
+    ASSERT(dest - vertices == nVertices);
+    addStream(TYPE_VERTEX, 3, nVertices, (float *)vertices, NULL, false);
+    nIndices = nVertices;
+    addBatch(0, nVertices);
+}
+
 StreamID Model::findStream(const AttributeType type, const uint index) const {
 	uint count = 0;
 	for (uint i = 0; i < streams.getCount(); i++){

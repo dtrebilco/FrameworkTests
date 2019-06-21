@@ -57,6 +57,7 @@ public:
   void createCapsule(const int subDivLevel, float radius, float height, float capScale = 1.0f);
   void createCylinder(const int subDivLevel, float radius, float height);
   void createIsoSphere(const int subDivLevel);
+  void createBox(vec3 size = vec3(1.0f));
 
 	StreamID findStream(const AttributeType type, const uint index = 0) const;
 	const Stream &getStream(const StreamID stream) const { return streams[stream]; }
